@@ -1,0 +1,41 @@
+pipeline {
+    agent any
+    
+    environment {
+        SONARQUBE_HOME = tool 'SonarQube'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                script {
+                    sh 'mvn clean install'
+                }
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    withSonarQubeEnv('SonarQube') {
+                        sh "${SONARQUBE_HOME}/bin/sonar-scanner"
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                // Cleanup steps if needed
+            }
+        }
+    }
+}
